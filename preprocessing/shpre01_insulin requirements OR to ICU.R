@@ -26,6 +26,15 @@ or_to_icu_ivinsulin <- or_to_icu %>%
   mutate(timepoint = 1:n()) %>% 
   dplyr::filter(!is.na(insulin_idr))
 
+
+or_to_icu_bolus <- or_to_icu %>% 
+  dplyr::select(record_id,date_surgery,contains("bolus"))  %>% 
+  pivot_longer(cols=-one_of("record_id","date_surgery","total_insulin_bolus"),names_to=c(".value","Var"),names_sep="[0-9]+$") %>% 
+  dplyr::select(-Var) %>% 
+  dplyr::filter(!is.na(time_bolus))
+
+
 saveRDS(or_to_icu,paste0(path_sh_folder,"/Glucose and Insulin Data/working/or_to_icu.RDS"))
 saveRDS(or_to_icu_glucose,paste0(path_sh_folder,"/Glucose and Insulin Data/working/or_to_icu_glucose.RDS"))
 saveRDS(or_to_icu_ivinsulin,paste0(path_sh_folder,"/Glucose and Insulin Data/working/or_to_icu_ivinsulin.RDS"))
+saveRDS(or_to_icu_bolus,paste0(path_sh_folder,"/Glucose and Insulin Data/working/or_to_icu_bolus.RDS"))

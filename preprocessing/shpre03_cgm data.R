@@ -4,7 +4,6 @@ source("functions/cgmanalysis_sh.R")
 
 
 
-
 # df <- readxl::read_excel(paste0(path_sh_folder,"/CGM data for metabolomics/MCE008.xlsx"),skip = 5)
 # df <- read_csv(paste0(path_sh_folder,"/CGM data for metabolomics/MCM056.csv"),skip = 0)
 
@@ -35,3 +34,7 @@ cgm_summary %>%
                 percent_time_under_54,percent_time_54_70) %>% 
   mutate_at(vars(-one_of(c("subject_id","date_cgm_placement"))),~round(as.numeric(.),2)) %>% 
   write_csv(.,paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_summary for 10 AGP indicators.csv"))
+
+# Some sensors dont' recover from ECG interference - hence had to be dropped
+# CGM works if within 20-30%
+

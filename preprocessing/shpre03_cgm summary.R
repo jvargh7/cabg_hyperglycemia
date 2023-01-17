@@ -28,7 +28,8 @@ cgm_summary %>%
   mutate_at(vars(contains("percent")),~as.numeric(.)) %>% 
   mutate(percent_time_180_250 = percent_time_over_180 - percent_time_over_250,
          percent_time_54_70 = percent_time_under_70 - percent_time_under_54) %>% 
-  dplyr::select(subject_id,date_cgm_placement,num_days_good_data,percent_cgm_wear,
+  dplyr::select(subject_id,date_cgm_placement,num_days_good_data,percent_non_na,
+                percent_cgm_wear,
                 average_sensor,cv,gmi,percent_time_70_180,
                 percent_time_over_250,percent_time_180_250,
                 percent_time_under_54,percent_time_54_70) %>% 

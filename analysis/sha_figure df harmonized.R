@@ -11,6 +11,7 @@ timestamp_ranges = read_csv("data/cgm timestamp ranges.csv") %>%
   # group_by(record_id) %>% 
   # dplyr::filter(n == min(n))
 
+
 icu48h_glucose <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/icu48h_glucose.RDS"))  %>% 
   mutate(timestamp = paste0(date_calendar," ",time_icu) %>% ymd_hms(.)) %>% ungroup()
 icu48h_ivinsulin <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/icu48h_ivinsulin.RDS"))  %>% 

@@ -74,6 +74,10 @@ cgmanalysis_sh <- function (inputdirectory, outputdirectory = tempdir(),
       totaltime <- base::as.numeric(base::difftime(base::max(table$timestamp, 
                                                              na.rm = T), base::min(table$timestamp, na.rm = T), 
                                                    units = "secs"))
+      
+      cgmupload["percent_non_na", f] <- base::round((base::length(which(is.na(table$sensorglucose)))/(length(table$sensorglucose)) * 
+                                                         100), 2)
+      
       cgmupload["percent_cgm_wear", f] <- base::round(((base::length(which(!is.na(table$sensorglucose)))/(totaltime/interval)) * 
                                                          100), 2)
       

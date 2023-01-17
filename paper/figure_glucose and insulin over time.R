@@ -39,6 +39,7 @@ unique_records_combined <- timestamp_ranges$record_id
 unique_files_combined <- timestamp_ranges$file
 library(ggpubr)
 source("C:/code/external/functions/cgm/plot_agp.R")
+dt_surgery <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/dt_surgery.RDS"))
 
 
 pdf(paste0(path_sh_folder,"/Glucose and Insulin Data/figures/figure_cgm and glucose insulin over time.pdf"),width=12,height=8)
@@ -48,6 +49,15 @@ for(i in 1:nrow(timestamp_ranges)){
   u_r_df <- fig_df %>% 
     dplyr::filter(record_id == unique_records_combined[i]) %>% 
     mutate(timestamp = as_datetime(timestamp))
+  
+  surgery_timestamps = dt_surgery %>% 
+    dplyr::filter(record_id == unique_records_combined[i])
+  
+  if(nrow(surgery_timestamps) == 0){
+    surgery_timestamps$surgery_start_time = NA
+    surgery_timestamps$surgery_end_time = NA
+    
+  }
   
   inputdirectory = paste0(path_sh_folder,"/Glucose and Insulin Data/raw/CGM/")
   
@@ -60,8 +70,8 @@ for(i in 1:nrow(timestamp_ranges)){
       mutate(timestamp = mdy_hms(timestamp))
   }
   
-  min_timestamp = min(c(cgm_df$timestamp,u_r_df$timestamp))
-  max_timestamp = max(c(cgm_df$timestamp,u_r_df$timestamp))
+  min_timestamp = min(c(cgm_df$timestamp,u_r_df$timestamp,surgery_timestamps$surgery_start_time),na.rm = TRUE)
+  max_timestamp = max(c(cgm_df$timestamp,u_r_df$timestamp,surgery_timestamps$surgery_end_time),na.rm=TRUE)
   
   
   
@@ -83,13 +93,21 @@ for(i in 1:nrow(timestamp_ranges)){
       geom_hline(yintercept = c(54,250),
                  color="orange") +
       geom_hline(yintercept = c(70,180),
-                 color="darkgreen") 
+                 color="darkgreen") +
+      geom_vline(xintercept = c(surgery_timestamps$surgery_start_time),col="black",linetype=2) +
+      annotate("text",y=300,x=surgery_timestamps$surgery_start_time,hjust = 0,label = "Start of Surgery") +
+      geom_vline(xintercept = c(surgery_timestamps$surgery_end_time),col="black",linetype=2) +
+      annotate("text",y=280,x=surgery_timestamps$surgery_end_time,hjust = 0,label = "End of Surgery")
     
     # CGM Plot -----------
     
     figB = cgm_df  %>% 
       plot_agp(.,title=str_replace(unique_files_combined[i],"\\.csv",""),y_label = "Sensor Glucose (mg/dL)",
-               x_limits = c(min_timestamp,max_timestamp))
+               x_limits = c(min_timestamp,max_timestamp)) +
+      geom_vline(xintercept = c(surgery_timestamps$surgery_start_time),col="black",linetype=2) +
+      annotate("text",y=300,x=surgery_timestamps$surgery_start_time,hjust = 0,label = "Start of Surgery") +
+      geom_vline(xintercept = c(surgery_timestamps$surgery_end_time),col="black",linetype=2) +
+      annotate("text",y=280,x=surgery_timestamps$surgery_end_time,hjust = 0,label = "End of Surgery") 
     
     ggarrange(figA,figB,
               nrow=2,ncol=1) %>% 

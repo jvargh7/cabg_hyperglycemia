@@ -1,7 +1,7 @@
 
 source("analysis/sha_figure df harmonized.R")
 
-or_to_icu <- fig_df %>% 
+insulin_counts <- fig_df %>% 
   dplyr::filter(location == "OR") %>% 
   dplyr::select(timestamp,record_id,variable,value) %>% 
   distinct(timestamp,record_id,variable,value,.keep_all=TRUE) %>%
@@ -10,10 +10,22 @@ or_to_icu <- fig_df %>%
   mutate(next_insulin = case_when(!is.na(Insulin) ~ 1,
                                   TRUE ~ 0)) %>% 
   mutate(next_insulin = cumsum(next_insulin)) %>% 
-  ungroup() %>%
+  ungroup()
+
+
+pre_insulin <- insulin_counts %>%
   dplyr::filter(next_insulin == 0) 
 
-mean_glucose = or_to_icu %>% 
+
+all_insulin <- insulin_counts %>% 
+  dplyr::filter(!is.na(Insulin))
+
+saveRDS(pre_insulin,paste0(path_sh_folder,"/Glucose and Insulin Data/working/pre_insulin.RDS"))
+saveRDS(all_insulin,paste0(path_sh_folder,"/Glucose and Insulin Data/working/all_insulin.RDS"))
+
+
+
+mean_glucose = pre_insulin %>% 
   group_by(record_id) %>% 
   summarize(estimate = mean(Glucose,na.rm=TRUE),
             sd = sd(Glucose,na.rm=TRUE),
@@ -26,7 +38,7 @@ mean_glucose = or_to_icu %>%
 require(pracma)
 # AUC = trapz(strike,volatility)
 
-unique_records <- or_to_icu %>% 
+unique_records <- pre_insulin %>% 
   group_by(record_id) %>% 
   dplyr::filter(n()>2) %>% 
   select(record_id) %>% 
@@ -36,7 +48,7 @@ unique_records <- or_to_icu %>%
 
 aucs = map_dfr(unique_records,
           function(u_r){
-            df = or_to_icu %>% 
+            df = pre_insulin %>% 
               dplyr::filter(record_id == u_r);
             
             

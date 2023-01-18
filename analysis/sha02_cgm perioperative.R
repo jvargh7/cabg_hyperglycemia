@@ -1,11 +1,15 @@
 source(".Rprofile")
+library(lubridate)
 
-lag_mins = 10
+# Based on call with FJP on 17 Jan 2023 to select closest CGM glucose value after POCT for alignment
+lag_mins = 0
+max_mins = 4
 
 # From sha01_glucose before stress hyperglycemia.R-------
 pre_insulin <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/pre_insulin.RDS"))
 dt_surgery <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/dt_surgery.RDS"))
-all_insulin <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/all_insulin.RDS")) 
+all_insulin <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/all_insulin.RDS"))
+all_glucose <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/all_glucose.RDS"))
 
 first_insulin <- all_insulin %>% 
   group_by(record_id) %>% 
@@ -15,15 +19,18 @@ total_insulin <- all_insulin %>%
   group_by(record_id) %>% 
   summarize(total_insulin_units = sum(Insulin,na.rm=TRUE))
 
+
+
+
 cgm_summary <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_summary.RDS"))
 cgm_long <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_long.RDS")) %>% 
   mutate(record_id = str_replace(subject_id,"\\_[A-Z0-9]+",""))
 
 # Pre-insulin glucose errors --------
 
-glucose_diff = map_dfr(1:nrow(pre_insulin),
+glucose_diff = map_dfr(1:nrow(all_glucose),
                    function(i){
-                     df_x = pre_insulin[i,];
+                     df_x = all_glucose[i,];
                      df_y = cgm_long %>% 
                        dplyr::filter(record_id == df_x$record_id) %>% 
                        dplyr::filter(timestamp > (df_x$timestamp+minutes(lag_mins))) %>% 
@@ -50,7 +57,7 @@ glucose_diff = map_dfr(1:nrow(pre_insulin),
 
 
 glucose_diff %>% 
-  dplyr::filter(abs(cgm_timestamp - poct_timestamp)<minutes(14)) %>%
+  dplyr::filter(abs(cgm_timestamp - poct_timestamp)<minutes(max_mins)) %>%
   dplyr::mutate(pct_diff = abs(poct_glucose - cgm_glucose)*100/poct_glucose) %>% 
   # distinct(record_id) %>% nrow()
   write_csv(.,file="analysis/sha02_difference between poct and cgm.csv")
@@ -58,6 +65,7 @@ glucose_diff %>%
 
 selected_devices = read_csv(file="analysis/sha02_difference between poct and cgm.csv") %>% 
   dplyr::filter(pct_diff < 30) %>% 
+  dplyr::filter(n() > 1) %>% 
   distinct(subject_id,.keep_all=TRUE)
 
 # Are there multiple devices for same record_id? 
@@ -85,14 +93,17 @@ cgm_selected <- cgm_long %>%
     total_insulin,
     by = "record_id"
   ) %>% 
-  mutate(phase = case_when(timestamp < surgery_start_time ~ "pre_surgery_obs",
-                           timestamp < first_ins_timestamp ~ "surgery_preinsulin_obs",
-                           timestamp < surgery_end_time ~ "surgery_postinsulin_obs",
-                           TRUE ~ "post_surgery_obs"))
+  mutate(phase = case_when(timestamp < surgery_start_time ~ "pre_surgery",
+                           timestamp <= surgery_end_time ~ "surgery",
+                           timestamp < (surgery_end_time + hours(24)) ~ "post_24hours",
+                           timestamp < (surgery_end_time + hours(72)) ~ "post_25to71hours",
+                           timestamp >= (surgery_end_time + hours(72)) & timestamp <= (surgery_end_time + hours(96)) ~ "post_72to96hours",
+                           TRUE ~ "post_remaining"))
+saveRDS(cgm_selected,paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_selected.RDS"))
 
 cgm_selected %>% 
   group_by(record_id,subject_id,total_insulin_units,phase) %>% 
   summarize(count_glucose = sum(!is.na(sensorglucose_corrected))) %>% 
   pivot_wider(names_from = phase,values_from=count_glucose) %>% 
-  dplyr::select(record_id,subject_id,total_insulin_units,pre_surgery_obs, surgery_preinsulin_obs, surgery_postinsulin_obs, post_surgery_obs) %>% 
+  dplyr::select(record_id,subject_id,total_insulin_units,pre_surgery, surgery, post_24hours, post_25to71hours,post_72to96hours,post_remaining) %>% 
   write_csv(.,file="analysis/sha02_count of observations by phase for selected.csv")

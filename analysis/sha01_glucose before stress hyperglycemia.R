@@ -20,8 +20,12 @@ pre_insulin <- insulin_counts %>%
 all_insulin <- insulin_counts %>% 
   dplyr::filter(!is.na(Insulin))
 
+all_glucose <- insulin_counts %>% 
+  dplyr::filter(!is.na(Glucose))
+
 saveRDS(pre_insulin,paste0(path_sh_folder,"/Glucose and Insulin Data/working/pre_insulin.RDS"))
 saveRDS(all_insulin,paste0(path_sh_folder,"/Glucose and Insulin Data/working/all_insulin.RDS"))
+saveRDS(all_glucose,paste0(path_sh_folder,"/Glucose and Insulin Data/working/all_glucose.RDS"))
 
 
 

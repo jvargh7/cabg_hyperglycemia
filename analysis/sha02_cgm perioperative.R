@@ -1,11 +1,14 @@
 source(".Rprofile")
 library(lubridate)
 
+source("analysis/sha_figure df harmonized.R")
+
 # Based on call with FJP on 17 Jan 2023 to select closest CGM glucose value after POCT for alignment
 lag_mins = 0
 max_mins = 4
 
 # From sha01_glucose before stress hyperglycemia.R-------
+# Values during surgery, i.e location == OR
 pre_insulin <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/pre_insulin.RDS"))
 dt_surgery <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/dt_surgery.RDS"))
 all_insulin <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/all_insulin.RDS"))
@@ -44,7 +47,7 @@ glucose_diff = map_dfr(1:nrow(all_glucose),
                   
                      
                      bind_cols(df_x %>% 
-                                 dplyr::select(timestamp,record_id,Glucose) %>% 
+                                 dplyr::select(timestamp,record_id,Glucose,location,type) %>% 
                                  rename(poct_timestamp = timestamp,
                                         poct_glucose = Glucose),
                                df_y) %>% 
@@ -62,17 +65,29 @@ glucose_diff %>%
   # distinct(record_id) %>% nrow()
   write_csv(.,file="analysis/sha02_difference between poct and cgm.csv")
 
+# Before 24-Jan meeting: At least 1 glucose measurement within 30% range
+# selected_devices = read_csv(file="analysis/sha02_difference between poct and cgm.csv") %>% 
+#   dplyr::filter(pct_diff < 30) %>% 
+#   dplyr::filter(n() > 1) %>% 
+#   distinct(subject_id,.keep_all=TRUE)
+# # Are there multiple devices for same record_id? 
+# selected_devices %>% 
+#   group_by(record_id) %>% 
+#   tally() %>% 
+#   dplyr::filter(n > 1)
 
-selected_devices = read_csv(file="analysis/sha02_difference between poct and cgm.csv") %>% 
-  dplyr::filter(pct_diff < 30) %>% 
-  dplyr::filter(n() > 1) %>% 
-  distinct(subject_id,.keep_all=TRUE)
+read_csv(file="analysis/sha02_difference between poct and cgm.csv") %>% 
+  group_by(record_id,subject_id) %>% 
+  summarize(proportion = mean(pct_diff < 30),
+            n = n()) %>% 
+  write_csv(.,file = "analysis/sha02_record_ids with counts of pct_diff lt 30 between poct and cgm.csv")
+# %>% 
+#   dplyr::filter(count > 0.5)
+selected_devices = read_csv("analysis/sha02_record_ids with counts of pct_diff lt 30 between poct and cgm.csv") %>% 
+  dplyr::filter(proportion >= 0.5) %>% 
+  dplyr::select(record_id,subject_id) 
 
-# Are there multiple devices for same record_id? 
-selected_devices %>% 
-  group_by(record_id) %>% 
-  tally() %>% 
-  dplyr::filter(n > 1)
+
 
 cgm_selected <- cgm_long %>% 
   dplyr::filter(subject_id %in% selected_devices$subject_id) %>% 

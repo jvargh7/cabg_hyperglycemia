@@ -1,3 +1,4 @@
+library(lubridate)
 inputdirectory = paste0(path_sh_folder,"/Glucose and Insulin Data/raw/CGM/")
 files = list.files(inputdirectory)
 files = files[regexpr("\\.csv",files)>0]
@@ -19,6 +20,15 @@ cgm_long = map_dfr(files,
                      
                      return(df)
                   })
+
+
+# MCM009 ----------
+# •	MCM009 – CGM appears to be collected in December. Is this correct?  
+# [FZT]:] This does NOT seem to be correct. 
+# The surgery was on 8/20/2021 and a sensor was placed on the same day according to the available data. 
+# I was not able to find out the precise timing.
+
+# JSV: Hard to infer when CGM timing should start
 
 # Filter to only devices with at least 80% CGM wear
 cgm_long %>% 

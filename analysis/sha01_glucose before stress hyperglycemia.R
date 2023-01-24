@@ -3,7 +3,7 @@ source("analysis/sha_figure df harmonized.R")
 
 insulin_counts <- fig_df %>% 
   dplyr::filter(location == "OR") %>% 
-  dplyr::select(timestamp,record_id,variable,value) %>% 
+  dplyr::select(timestamp,record_id,variable,value,location,type) %>% 
   distinct(timestamp,record_id,variable,value,.keep_all=TRUE) %>%
   pivot_wider(names_from="variable",values_from = "value") %>% 
   group_by(record_id) %>% 

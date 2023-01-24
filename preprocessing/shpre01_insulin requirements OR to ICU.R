@@ -1,5 +1,4 @@
 sh_variables <- readxl::read_excel("data/Stress Hyperglycemia Variable List.xlsx",sheet="or_to_icu")
-dt_variables <- readxl::read_excel("data/Stress Hyperglycemia Variable List.xlsx",sheet="dt_surgery")
 
 
 or_to_icu <- read_csv(paste0(path_sh_folder,"/Glucose and Insulin Data/raw/METABOCABG insulin requirements OR to ICU arrival_12.15.2022.csv")) %>% 
@@ -8,10 +7,6 @@ or_to_icu <- read_csv(paste0(path_sh_folder,"/Glucose and Insulin Data/raw/METAB
   mutate(date_surgery = lubridate::mdy(date_surgery))
 
 
-dt_surgery <- read_csv(paste0(path_sh_folder,"/Glucose and Insulin Data/raw/METABOCABG-SurgeryStartAndStopT_DATA_LABELS_2023-01-04_1314.csv"))  %>% 
-  rename_with(~ dt_variables$new_var[which(dt_variables$variable == .x)], 
-              .cols = dt_variables$variable) %>% 
-  mutate_at(vars(contains("time")),~lubridate::mdy_hm(.))
 
 
 or_to_icu_glucose <- or_to_icu %>% 
@@ -42,7 +37,6 @@ or_to_icu_bolus <- or_to_icu %>%
 
 
 saveRDS(or_to_icu,paste0(path_sh_folder,"/Glucose and Insulin Data/working/or_to_icu.RDS"))
-saveRDS(dt_surgery,paste0(path_sh_folder,"/Glucose and Insulin Data/working/dt_surgery.RDS"))
 saveRDS(or_to_icu_glucose,paste0(path_sh_folder,"/Glucose and Insulin Data/working/or_to_icu_glucose.RDS"))
 saveRDS(or_to_icu_ivinsulin,paste0(path_sh_folder,"/Glucose and Insulin Data/working/or_to_icu_ivinsulin.RDS"))
 saveRDS(or_to_icu_bolus,paste0(path_sh_folder,"/Glucose and Insulin Data/working/or_to_icu_bolus.RDS"))

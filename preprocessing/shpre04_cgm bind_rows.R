@@ -18,19 +18,22 @@ cgm_long = map_dfr(files,
                        df$timestamp = mdy_hms(df$timestamp)
                      };
                      
+                     if(f == "MCM009.csv"){
+                       # Date of surgery: 2019-08-20 08:32:00
+                       diff_date = min(df$timestamp) - ymd_hms("2019-08-20 08:32:00")
+                       df = df %>% 
+                         mutate(timestamp = timestamp - diff_date)
+                       
+                     }
+                     
                      return(df)
                   })
 
-
-# MCM009 ----------
-# •	MCM009 – CGM appears to be collected in December. Is this correct?  
-# [FZT]:] This does NOT seem to be correct. 
-# The surgery was on 8/20/2021 and a sensor was placed on the same day according to the available data. 
-# I was not able to find out the precise timing.
-
-# JSV: Hard to infer when CGM timing should start
+length(unique(str_replace(cgm_summary$subject_id,"_[0-9A-Z]+","")))
 
 # Filter to only devices with at least 80% CGM wear
-cgm_long %>% 
-  dplyr::filter(subject_id %in% cgm_summary[as.numeric(cgm_summary$percent_cgm_wear)>80,]$subject_id) %>%
-saveRDS(.,paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_long.RDS"))
+cgm_long_80pct = cgm_long %>% 
+  dplyr::filter(subject_id %in% cgm_summary[as.numeric(cgm_summary$percent_cgm_wear)>80,]$subject_id)
+length(unique(str_replace(cgm_long_80pct$subject_id,"_[0-9A-Z]+","")))
+
+saveRDS(cgm_long_80pct,paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_long.RDS"))

@@ -5,18 +5,8 @@ dt_surgery <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/d
          post72h_start_time = surgery_end_time + hours(72),
          post72h_end_time = surgery_end_time + hours(96)) 
 
-phase_insulin <- fig_df %>% 
-  dplyr::filter(variable == "Insulin") %>% 
-  left_join(dt_surgery,
-            by = "record_id") %>% 
-  mutate(phase = case_when(timestamp < surgery_start_time ~ "pre_surgery",
-                           timestamp <= surgery_end_time ~ "surgery",
-                           timestamp < (surgery_end_time + hours(24)) ~ "post_24hours",
-                           timestamp < (surgery_end_time + hours(72)) ~ "post_25to71hours",
-                           timestamp >= (surgery_end_time + hours(72)) & timestamp <= (surgery_end_time + hours(96)) ~ "post_72to96hours",
-                           TRUE ~ "post_remaining")) %>% 
-  group_by(record_id,phase) %>% 
-  summarize(used_insulin = sum(value,na.rm=TRUE))
+# Sum up insulin used in each phase -------
+source("analysis/sha_phase insulin.R")
 
 # From sha02_cgm perioperative - after appropriate selections -----
 cgm_selected <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_selected.RDS")) %>% 

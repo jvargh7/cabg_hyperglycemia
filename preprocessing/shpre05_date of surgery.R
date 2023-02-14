@@ -2,7 +2,7 @@
 dt_variables <- readxl::read_excel("data/Stress Hyperglycemia Variable List.xlsx",sheet="dt_surgery")
 
 
-dt_surgery <- read_csv(paste0(path_sh_folder,"/Glucose and Insulin Data/raw/METABOCABG-SurgeryStartAndStopT_DATA_LABELS_2023-01-04_1314.csv"))  %>% 
+dt_surgery <- read_csv(paste0(path_sh_folder,"/Glucose and Insulin Data/raw/METABOCABG-SurgeryStartAndStopT_DATA_LABELS_2023-02-14.csv"))  %>% 
   rename_with(~ dt_variables$new_var[which(dt_variables$variable == .x)], 
               .cols = dt_variables$variable) %>% 
   mutate_at(vars(contains("time")),~lubridate::mdy_hm(.)) %>%

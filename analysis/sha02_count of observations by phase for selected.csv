@@ -1,5 +1,6 @@
 record_id,subject_id,total_insulin_units,pre_surgery,surgery,post_24hours,post_25to71hours,post_72to96hours,post_remaining
 MCE008,MCE008,1,1,45,288,529,NA,NA
+MCM009,MCM009,4.08,NA,43,240,576,288,719
 MCM015,MCM015,4.47,215,47,288,576,288,262
 MCM024,MCM024,6,192,47,288,576,288,563
 MCM034,MCM034_31P8B3,12.816,281,53,288,576,288,503

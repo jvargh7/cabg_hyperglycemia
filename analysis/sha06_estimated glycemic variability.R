@@ -22,9 +22,9 @@ estimated_glycemic_variability = dataset_for_calibration %>%
          U = theta_D + qt(p = 0.975,df = nu2)*((T_D)^((1/2))),
          sqrt_T_D = ((T_D)^((1/2)))) %>% 
   
-  mutate(prob_70to180 = pnorm(180,theta_D,sqrt_T_D)) %>% 
+  mutate(prob_70to140 = pnorm(140,theta_D,sqrt_T_D)) %>% 
   group_by(subject_id,record_id,phase) %>% 
-  summarize(TIR = mean(prob_70to180,na.rm=TRUE),
+  summarize(TIR = mean(prob_70to140,na.rm=TRUE),
             mean_cgm = mean(theta_D,na.rm=TRUE),
             sd_cgm = sqrt((1 + 1/D)*var(theta_D,na.rm=TRUE) + mean(B_D,na.rm=TRUE)),
             n = sum(!is.na(theta_D))) %>% 
@@ -78,12 +78,12 @@ cs_df = estimated_glycemic_variability %>%
                 surgery_tir,surgery_cv,
                 post_24hours_tir,post_24hours_cv) %>% 
   dplyr::filter(!is.na(surgery_cv)) %>% 
-  mutate(cv_change_group = case_when(surgery_cv < post_24hours_cv ~ "CV Increased",
-                                     surgery_cv >= post_24hours_cv ~ "CV Decreased",
-                                     is.na(surgery_cv) ~ NA_character_),
-         tir_change_group = case_when(surgery_tir < post_24hours_tir ~ "TIR Increased",
-                                      surgery_tir >= post_24hours_tir ~ "TIR Decreased",
-                                      is.na(surgery_tir) ~ NA_character_)
+  mutate(cv_group = case_when(post_24hours_cv > 0.1 ~ "CV > 0.1",
+                              post_24hours_cv <= 0.1 ~ "CV <= 0.1",
+                              TRUE ~ NA_character_),
+         tir_group = case_when(post_24hours_tir < 70 ~ "TIR < 70%",
+                               post_24hours_tir >= 70 ~ "TIR >= 70%",
+                               TRUE ~ NA_character_)
   )
 
 write_csv(cs_df,paste0(path_sh_folder,"/Glucose and Insulin Data/working/crosssectional dataset for metabolomics after imputation.csv"))
@@ -128,4 +128,4 @@ ggarrange(figA,figB,figC,
           ncol=3,labels = c("A","B","C")) %>% 
   ggsave(.,filename=paste0(path_sh_folder,"/Glucose and Insulin Data/figures/figure_phase specific cgm and insulin summary after imputation.png"),width=12,height=4)
 
-
+# https://journals.sagepub.com/doi/pdf/10.1177/1932296814537039

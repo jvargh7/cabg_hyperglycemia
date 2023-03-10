@@ -38,6 +38,8 @@ source("analysis/sha_phase insulin.R")
 
 longitudinal_df = estimated_glycemic_variability %>% 
   group_by(record_id,phase) %>% 
+  
+  # Need to check this assumption --------
   summarize(tir = max(TIR,na.rm=TRUE)*100,
             cv = min(CV_cgm,na.rm=TRUE)) %>% 
   full_join(phase_insulin,
@@ -55,6 +57,19 @@ longitudinal_df = estimated_glycemic_variability %>%
   mutate(preceding_insulin = case_when(phase == "Pre Surgery" ~ 0,
                                        phase == "Surgery" ~ 0,
                                        TRUE ~ dplyr::lag(used_insulin,1)))
+
+
+estimated_glycemic_variability %>% 
+  group_by(record_id,phase) %>% 
+  dplyr::filter(n()>1) %>% 
+  mutate(phase = factor(phase,levels=c("pre_surgery","surgery","post_24hours","post_25to71hours","post_72to96hours","post_remaining"),
+                        labels=c("Pre Surgery","Surgery","Post 24 hours","Post 25-71 hours","Post 72-96 hours","Post >96 hours"),
+                        ordered=TRUE)) %>% 
+  arrange(record_id,phase) %>% 
+  dplyr::select(record_id,phase,everything()) %>% 
+  mutate_if(is.numeric,~round(.,2)) %>% 
+  writexl::write_xlsx(.,paste0(path_sh_folder,"/Glucose and Insulin Data/working/question on treating multiple CGMs.xlsx"))
+
 
 length(unique(longitudinal_df$record_id))
 

@@ -23,16 +23,7 @@ for (u_d in unique_devices){
                           idvars = c("file","subject_id",
                                      "record_id","sensorglucose",
                                      "surgery_start_time","surgery_end_time","duration_surgery"));
-      
-      # if(amelia_out$message != "Normal EM convergence."){
-      #   amelia_out = amelia(before_imputation, m = 10, ts = "timestamp", cs = "phase",intercs = TRUE,
-      #                       polytime = 1,p2s=0,parallel = "no",
-      #                       idvars = c("file","subject_id",
-      #                                  "record_id","sensorglucose",
-      #                                  "surgery_start_time","surgery_end_time","duration_surgery"));
-      #   
-      # }
-      
+     
       saveRDS(amelia_out,paste0(path_sh_folder,"/Glucose and Insulin Data/working/amelia/",u_d,".RDS"));
       
       png(paste0(path_sh_folder,"/Glucose and Insulin Data/working/amelia/",u_d," Imputation.png"),width = 1200,height=800);

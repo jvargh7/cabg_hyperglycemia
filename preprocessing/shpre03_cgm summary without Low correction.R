@@ -3,7 +3,7 @@ path_cgm_repo <- "C:/code/nutritional_epidemiology/cgm"
 source("functions/cgmanalysis_sh.R")
 
 
-
+# This does not incorporate exclusion based on very low values and uses reported values as-is
 # df <- readxl::read_excel(paste0(path_sh_folder,"/CGM data for metabolomics/MCE008.xlsx"),skip = 5)
 # df <- read_csv(paste0(path_sh_folder,"/CGM data for metabolomics/MCM056.csv"),skip = 0)
 
@@ -22,7 +22,7 @@ cgm_summary <- cgmanalysis_sh(inputdirectory,
                                         belowexcursionlength = 15)
 
 rownames(cgm_summary) <- NULL
-saveRDS(cgm_summary,paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_summary.RDS"))
+saveRDS(cgm_summary,paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_summary without Low correction.RDS"))
 
 cgm_summary %>% 
   mutate_at(vars(contains("percent")),~as.numeric(.)) %>% 
@@ -34,7 +34,7 @@ cgm_summary %>%
                 percent_time_over_250,percent_time_180_250,
                 percent_time_under_54,percent_time_54_70) %>% 
   mutate_at(vars(-one_of(c("subject_id","date_cgm_placement"))),~round(as.numeric(.),2)) %>% 
-  write_csv(.,paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_summary for 10 AGP indicators.csv"))
+  write_csv(.,paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_summary for 10 AGP indicators without Low correction.csv"))
 
 # Some sensors dont' recover from ECG interference - hence had to be dropped
 # CGM works if within 20-30%

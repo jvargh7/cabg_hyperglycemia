@@ -22,9 +22,9 @@ estimated_glycemic_variability = dataset_for_calibration %>%
          U = theta_D + qt(p = 0.975,df = nu2)*((T_D)^((1/2))),
          sqrt_T_D = ((T_D)^((1/2)))) %>% 
   
-  mutate(prob_70to140 = pnorm(140,theta_D,sqrt_T_D)) %>% 
+  mutate(prob_tir = pnorm(tir_high,theta_D,sqrt_T_D) - pnorm(tir_low,theta_D,sqrt_T_D)) %>% 
   group_by(subject_id,record_id,phase) %>% 
-  summarize(TIR = mean(prob_70to140,na.rm=TRUE),
+  summarize(TIR = mean(prob_tir,na.rm=TRUE),
             mean_cgm = mean(theta_D,na.rm=TRUE),
             sd_cgm = sqrt((1 + 1/D)*var(theta_D,na.rm=TRUE) + mean(B_D,na.rm=TRUE)),
             n = sum(!is.na(theta_D))) %>% 
@@ -96,8 +96,8 @@ cs_df = estimated_glycemic_variability %>%
   mutate(cv_group = case_when(post_24hours_cv > 0.1 ~ "CV > 0.1",
                               post_24hours_cv <= 0.1 ~ "CV <= 0.1",
                               TRUE ~ NA_character_),
-         tir_group = case_when(post_24hours_tir < 70 ~ "TIR < 70%",
-                               post_24hours_tir >= 70 ~ "TIR >= 70%",
+         tir_group = case_when(post_24hours_tir < tir_low ~ "TIR < 70%",
+                               post_24hours_tir >= tir_low ~ "TIR >= 70%",
                                TRUE ~ NA_character_)
   )
 

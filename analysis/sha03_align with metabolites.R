@@ -9,7 +9,7 @@ dt_surgery <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/d
 source("analysis/sha_phase insulin.R")
 
 # From sha02_cgm perioperative - after appropriate selections -----
-cgm_selected <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_selected.RDS")) %>% 
+cgm_selected <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_selected based on poct difference.RDS")) %>% 
   dplyr::select(record_id,subject_id,timestamp,phase,sensorglucose_corrected) %>% 
   group_by(record_id,subject_id,phase) %>% 
   summarize(n_cgm_observations = sum(!is.na(sensorglucose_corrected)),

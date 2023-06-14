@@ -19,6 +19,13 @@ imputed_subject_ids = list.files(paste0(path_sh_folder,"/Glucose and Insulin Dat
   str_replace(.,"\\.RDS","")
 unimputed_subject_ids = unique_devices[!unique_devices %in% imputed_subject_ids]
 
+excluded_subject_ids_from_calibration <- c(
+                                           # Not a lot of variability and had to impute during surgery
+                                           "MCM017","MCM027"
+                                           
+                                           )
+
+
 m = 10
 # https://cran.r-project.org/web/packages/Amelia/vignettes/using-amelia.html
 imputed_dfs = map(1:m,
@@ -33,7 +40,8 @@ imputed_dfs = map(1:m,
                               
                             }) %>% 
                       bind_rows(cgm_for_imputation %>% 
-                                  dplyr::filter(subject_id %in% unimputed_subject_ids)) %>% 
+                                  dplyr::filter(subject_id %in% unimputed_subject_ids)) %>%
+                      dplyr::filter(!subject_id %in% excluded_subject_ids_from_calibration) %>% 
                       return(.)
                     
                   })
@@ -63,7 +71,7 @@ dataset_for_calibration = map(1:m,
                                   dplyr::mutate(phase_imp = case_when(phase %in% merged_df$phase ~ phase,
                                                                    TRUE ~ "post_25to71hours"))
                                 
-                                lmm_fit = lmer(value ~ phase_imp*ns(cgm_glucose,4) + (1|subject_id),data = merged_df)
+                                lmm_fit = lmer(value ~ phase_imp*ns(cgm_glucose,4) + (cgm_glucose|subject_id),data = merged_df)
                                 
                                 PI <- predictInterval(merMod = lmm_fit, newdata = pred_df,
                                                       level = 0.95, n.sims = 1000,

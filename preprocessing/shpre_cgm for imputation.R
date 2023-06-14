@@ -6,7 +6,7 @@ dt_surgery <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/d
          post72h_start_time = surgery_end_time + hours(72),
          post72h_end_time = surgery_end_time + hours(96)) 
 
-cgm_long <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_long.RDS")) %>% 
+cgm_long <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_long removing Low.RDS")) %>% 
   mutate(record_id = str_replace(subject_id,"\\_[A-Z0-9]+","")) %>% 
   group_by(subject_id) %>% 
   mutate(cgm_glucose = case_when(sensorglucose < 54*0.5 ~ NA_real_,

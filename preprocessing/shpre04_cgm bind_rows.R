@@ -3,11 +3,12 @@ inputdirectory = paste0(path_sh_folder,"/Glucose and Insulin Data/raw/CGM/")
 files = list.files(inputdirectory)
 files = files[regexpr("\\.csv",files)>0]
 
-cgm_summary <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_summary.RDS"))
+cgm_summary <- readRDS(paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_summary without Low correction.RDS"))
 
 cgm_long = map_dfr(files,
                    function(f){
                      df = read_csv(paste0(inputdirectory,f)) %>% 
+                       # Does not remove values that are below 27 mg/dL or where glucose changes by +/- 20%
                        mutate(sensorglucose = case_when(sensorglucose == "Low" ~ NA_real_,
                                                         TRUE ~ as.numeric(sensorglucose)),
                               file = f,
@@ -36,4 +37,6 @@ cgm_long_80pct = cgm_long %>%
   dplyr::filter(subject_id %in% cgm_summary[as.numeric(cgm_summary$percent_cgm_wear)>80,]$subject_id)
 length(unique(str_replace(cgm_long_80pct$subject_id,"_[0-9A-Z]+","")))
 
-saveRDS(cgm_long_80pct,paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_long.RDS"))
+saveRDS(cgm_long_80pct,paste0(path_sh_folder,"/Glucose and Insulin Data/working/cgm_long removing Low.RDS"))
+
+# cgm_long is then used in shpre_cgm for imputation.R

@@ -97,7 +97,8 @@ for(i in 1:nrow(timestamp_ranges)){
       geom_vline(xintercept = c(surgery_timestamps$surgery_start_time),col="black",linetype=2) +
       annotate("text",y=300,x=surgery_timestamps$surgery_start_time,hjust = 0,label = "Start of Surgery") +
       geom_vline(xintercept = c(surgery_timestamps$surgery_end_time),col="black",linetype=2) +
-      annotate("text",y=280,x=surgery_timestamps$surgery_end_time,hjust = 0,label = "End of Surgery")
+      annotate("text",y=280,x=surgery_timestamps$surgery_end_time,hjust = 0,label = "End of Surgery") +
+      theme(legend.position = "bottom")
     
     # CGM Plot -----------
     

@@ -39,10 +39,10 @@ for(i in 1:nrow(unique_subject_ids)){
               max = max(value)) %>% 
     ungroup() %>% 
     mutate(type = factor(type,levels=c("sensorglucose","cgm_glucose","fit","upr","lwr"),
-                         labels = c("Actual","Missing Data Corrected",
-                                    "Median POCT Corrected",
-                                    "95%UCI POCT Corrected",
-                                    "95%LCI POCT Corrected")))
+                         labels = c("Actual","Missing Data Imputed",
+                                    "Median POCT Calibrated",
+                                    "95%UCI POCT Calibrated",
+                                    "95%LCI POCT Calibrated")))
   
   fig = ggplot(data=df,aes(x = timestamp,group=type,col=type,y = med,ymin=min,ymax=max))  +
     geom_path() +
@@ -58,7 +58,7 @@ for(i in 1:nrow(unique_subject_ids)){
     geom_point(data=poct_df,aes(x=timestamp,y=value,ymin=value,ymax=value),col="darkgreen",shape = 2) +
     theme(legend.position = "bottom")
   
-  ggsave(fig,filename=paste0(path_sh_folder,"/Glucose and Insulin Data/working/calibrated/",s_i,".png"),width=10,height=6)
+  ggsave(fig,filename=paste0(path_sh_folder,"/Glucose and Insulin Data/working/calibrated/",s_i," Calibrated.png"),width=10,height=6)
   
   
 }

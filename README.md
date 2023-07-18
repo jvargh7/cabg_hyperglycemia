@@ -1,2 +1,4 @@
-# stress_hyperglycemia
-Hyperglycemia in response to stress during cardiac surgery
+# CABG Hyperglycemia
+
+Hyperglycemia in response to stress during coronary artery bypass graft surgery
+

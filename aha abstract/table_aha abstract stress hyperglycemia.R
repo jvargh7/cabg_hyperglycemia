@@ -125,7 +125,7 @@ rownames(p_adj) = NULL
 
 
 p_adj %>% 
-  write.csv(.,file="paper/adjusted p values.csv")
+  write.csv(.,file="aha abstract/adjusted p values.csv")
 
 # cg_tab %>% 
 #   createTable(.,digits=1,show.all=TRUE,show.p.overall = TRUE,q.type = c(2,2),sd.type = 2,show.n = TRUE) %>% 

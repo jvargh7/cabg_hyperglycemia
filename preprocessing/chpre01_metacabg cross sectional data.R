@@ -1,3 +1,5 @@
+rm(list=ls());gc();source(".Rprofile")
+
 metacabg <- readRDS(paste0(path_metacabg_paper,"/working/metacabg_20230706.RDS"))
 
 screening <- metacabg %>% 
@@ -41,3 +43,5 @@ post1 <- metacabg %>%
 post2 <- metacabg %>% 
   dplyr::filter(event_name == "post2") %>% 
   dplyr::select(one_of(post2_vars))
+
+saveRDS(surgery,paste0(path_metacabg_paper,"/working/surgery_cs.RDS"))

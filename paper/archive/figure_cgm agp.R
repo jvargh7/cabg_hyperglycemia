@@ -6,7 +6,7 @@ files = files[regexpr("\\.csv",files)>0]
 library(lubridate)
 source("C:/code/external/functions/cgm/plot_agp.R")
 timestamp_ranges = data.frame()
-pdf(paste0(path_sh_folder,"/Glucose and Insulin Data/figures/figure_cgm agp.pdf"),width=12,height=8)
+pdf(paste0(path_sh_folder,"/figures/figure_cgm agp.pdf"),width=12,height=8)
 
 for (f in files){
   

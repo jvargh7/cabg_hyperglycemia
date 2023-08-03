@@ -34,7 +34,45 @@ bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/metacabg_2023070
                names_pattern="(.*_bg)_(.*)_(.*)"
                ) %>% 
   dplyr::filter(!is.na(value)) %>% 
-  mutate(time = as_hms(time)) %>% 
+  mutate(time = as_hms(time)) %>%
+  # FZT verified on 2023-07-26
+  mutate(time = case_when(
+                          record_id == "MCE001" & event_name == "post1" & domain == "meal_bg" & index == 3 ~ as_hms("18:03:00"),
+                          record_id == "MCE001" & event_name == "post1" & domain == "meal_bg" & index == 4 ~ as_hms("22:16:00"),
+                          record_id == "MCE001" & event_name == "post2" & domain == "meal_bg" & index == 1 ~ as_hms("06:49:00"),
+                          record_id == "MCE001" & event_name == "post2" & domain == "meal_bg" & index == 2 ~ as_hms("11:29:00"),
+                          record_id == "MCE001" & event_name == "post2" & domain == "meal_bg" & index == 3 ~ as_hms("17:41:00"),
+                          record_id == "MCE001" & event_name == "post2" & domain == "meal_bg" & index == 4 ~ as_hms("21:35:00"),
+                          
+                          record_id == "MCE003" & event_name == "post2" & domain == "meal_bg" & index == 1 ~ as_hms("06:49:00"),
+                          record_id == "MCE003" & event_name == "post2" & domain == "meal_bg" & index == 2 ~ as_hms("11:05:00"),
+                          record_id == "MCE003" & event_name == "post2" & domain == "meal_bg" & index == 3 ~ as_hms("17:46:00"),
+                          record_id == "MCE003" & event_name == "post2" & domain == "meal_bg" & index == 4 ~ as_hms("22:12:00"),
+                          
+                          record_id == "MCM001" & event_name == "post2" & domain == "meal_bg" & index == 2 ~ as_hms("13:09:00"),
+                          record_id == "MCM001" & event_name == "post2" & domain == "meal_bg" & index == 3 ~ as_hms("16:48:00"),
+                          record_id == "MCM001" & event_name == "post2" & domain == "meal_bg" & index == 4 ~ as_hms("21:06:00"),
+                          
+                          record_id == "MCM002" & event_name == "post2" & domain == "meal_bg" & index == 2 ~ as_hms("10:40:00"),
+                          record_id == "MCM002" & event_name == "post2" & domain == "meal_bg" & index == 3 ~ as_hms("15:59:00"),
+                          record_id == "MCM002" & event_name == "post2" & domain == "meal_bg" & index == 4 ~ as_hms("21:14:00"),
+                          
+                          
+                          record_id == "MCM003" & event_name == "post2" & domain == "meal_bg" & index == 1 ~ as_hms("06:21:00"),
+                          record_id == "MCM003" & event_name == "post2" & domain == "meal_bg" & index == 2 ~ as_hms("10:44:00"),
+                          record_id == "MCM003" & event_name == "post2" & domain == "meal_bg" & index == 3 ~ as_hms("16:29:00"),
+                          record_id == "MCM003" & event_name == "post2" & domain == "meal_bg" & index == 4 ~ as_hms("21:56:00"),
+                          
+                          record_id == "MCM009" & event_name == "post2" & domain == "meal_bg" & index == 2 ~ as_hms("11:46:00"),
+                          record_id == "MCM009" & event_name == "post2" & domain == "meal_bg" & index == 3 ~ as_hms("16:22:00"),
+                          record_id == "MCM009" & event_name == "post2" & domain == "meal_bg" & index == 4 ~ as_hms("21:33:00"),
+                          
+                          record_id == "MCM022" & event_name == "post2" & domain == "meal_bg" & index == 4 ~ as_hms("21:12:00"),
+                          TRUE ~ time
+                          )) %>% 
+  
+  
+   
   add_key_dates(.) %>% 
   mutate(timestamp = lubridate::as_datetime(paste0(date_measurement," ",time)))
 

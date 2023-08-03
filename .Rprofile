@@ -9,3 +9,5 @@ path_metacabg_paper <- "C:/Cloud/OneDrive - Emory University/Papers/CABG CGM Met
 
 tir_low = 70
 tir_high = 140
+
+low_glucose_cutoff = 40

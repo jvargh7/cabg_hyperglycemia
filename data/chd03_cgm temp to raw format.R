@@ -1,5 +1,9 @@
 rm(list=ls());gc();source(".Rprofile")
-
+# This file converts CGM time series data from the format (one file per patient) in Clarity to one that is usable by the team
+# It will result in 2 or 3 columns
+# timestamp : YYYY-MM-DD hh:mm:ss
+# sensorglucose : mg/dL
+# transmitter_id: If there are >1 CGMs per patient
 
 # Since some individuals had multiple devices ---------
 files_list <- list.files(paste0(path_sh_folder,"/raw/CGM/TEMP"))

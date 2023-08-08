@@ -1,6 +1,6 @@
 rm(list=ls());gc();source(".Rprofile")
 
-metacabg <- readRDS(paste0(path_metacabg_paper,"/working/metacabg_20230706.RDS"))
+metacabg <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS"))
 
 screening <- metacabg %>% 
   dplyr::filter(event_name == "screening") %>% 
@@ -44,4 +44,9 @@ post2 <- metacabg %>%
   dplyr::filter(event_name == "post2") %>% 
   dplyr::select(one_of(post2_vars))
 
-saveRDS(surgery,paste0(path_metacabg_paper,"/working/surgery_cs.RDS"))
+saveRDS(surgery,paste0(path_metacabg_paper,"/working/data/surgery_cs.RDS"))
+write_csv(surgery,paste0(path_metacabg_paper,"/working/data/surgery_cs.csv"))
+
+
+saveRDS(screening,paste0(path_metacabg_paper,"/working/data/screening.RDS"))
+write_csv(screening,paste0(path_metacabg_paper,"/working/data/screening.csv"))

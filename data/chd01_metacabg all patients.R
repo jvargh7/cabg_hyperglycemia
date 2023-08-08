@@ -23,6 +23,6 @@ metacabg <- readxl::read_excel(paste0(path_sh_folder,"/raw/METACABG days 1 and 2
                                       record_id == "MCM065" & event_name == "surgery" ~ ymd_hms("2022-07-25 15:04:00"),
                                         TRUE ~ surgery_end_time))
 
-saveRDS(metacabg,paste0(path_metacabg_paper,"/working/metacabg_20230706.RDS"))
+saveRDS(metacabg,paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS"))
 
 

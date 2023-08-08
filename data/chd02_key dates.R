@@ -1,5 +1,5 @@
 
-key_dates <- readRDS(paste0(path_metacabg_paper,"/working/metacabg_20230706.RDS")) %>% 
+key_dates <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS")) %>% 
   dplyr::select(record_id,event_name,
                 surgery_date,date_of_cabg_bg_monitoring,
                 date_surgery_or_drips,
@@ -72,10 +72,10 @@ post_qc_dates <- corrected_key_dates %>%
             max_date = max(date_event_name)) %>% 
   dplyr::filter(min_date != max_date)
 
-write_csv(corrected_key_dates,paste0(path_metacabg_paper,"/working/corrected key observation dates.csv"))
+write_csv(corrected_key_dates,paste0(path_metacabg_paper,"/working/data/corrected key observation dates.csv"))
 
 
-cgm_dates <- readRDS(paste0(path_metacabg_paper,"/working/metacabg_20230706.RDS")) %>% 
+cgm_dates <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS")) %>% 
   dplyr::filter(event_name == "screening") %>% 
   dplyr::select(record_id,blinded_group,type_of_participation,
                 cgm1_insertion_date_time,
@@ -91,4 +91,4 @@ corrected_key_dates %>%
   pivot_wider(names_from=event_name,values_from=date_event_name) %>% 
   left_join(cgm_dates,
             by="record_id") %>% 
-  write_csv(.,paste0(path_metacabg_paper,"/working/cgm insertion dates.csv"))
+  write_csv(.,paste0(path_metacabg_paper,"/working/data/cgm insertion dates.csv"))

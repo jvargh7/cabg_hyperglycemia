@@ -1,4 +1,4 @@
-corrected_key_dates <- read_csv(paste0(path_metacabg_paper,"/working/corrected key observation dates.csv"))
+corrected_key_dates <- read_csv(paste0(path_metacabg_paper,"/working/data/corrected key observation dates.csv"))
 
 
 
@@ -24,7 +24,7 @@ add_key_dates <- function(df){
 
 
 
-bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/metacabg_20230706.RDS")) %>% 
+bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS")) %>% 
   dplyr::select(record_id,event_name,
                 matches("(or_bg|cgmbg_bg|meal_bg)")) %>% 
   dplyr::select(-matches("(gt|lt|ge|le)")) %>% 
@@ -76,7 +76,7 @@ bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/metacabg_2023070
   add_key_dates(.) %>% 
   mutate(timestamp = lubridate::as_datetime(paste0(date_measurement," ",time)))
 
-insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/metacabg_20230706.RDS")) %>% 
+insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS")) %>% 
   dplyr::select(record_id,event_name,
                 matches("(or_idr|icu48_idr)")) %>% 
   dplyr::select(-matches("(gt|lt|ge|le)")) %>% 
@@ -96,7 +96,7 @@ insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/metacab
   mutate(timestamp_start = lubridate::as_datetime(paste0(date_measurement," ",time_start)),
          timestamp_stop = lubridate::as_datetime(paste0(date_stop," ",time_stop)))
 
-insulinbolus_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/metacabg_20230706.RDS")) %>% 
+insulinbolus_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS")) %>% 
   dplyr::select(record_id,event_name,
                 matches("(or_ibolus|icu48_isq)")) %>% 
   dplyr::select(-matches("(gt|lt|ge|le)")) %>% 
@@ -111,8 +111,10 @@ insulinbolus_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/metaca
   mutate(timestamp = lubridate::as_datetime(paste0(date_measurement," ",time)))
 
 
-saveRDS(bg_longitudinal,paste0(path_metacabg_paper,"/working/bg_longitudinal.RDS"))
-saveRDS(insulinbolus_longitudinal,paste0(path_metacabg_paper,"/working/insulinbolus_longitudinal.RDS"))
-saveRDS(insulindrip_longitudinal,paste0(path_metacabg_paper,"/working/insulindrip_longitudinal.RDS"))
+saveRDS(bg_longitudinal,paste0(path_metacabg_paper,"/working/data/bg_longitudinal.RDS"))
+saveRDS(insulinbolus_longitudinal,paste0(path_metacabg_paper,"/working/data/insulinbolus_longitudinal.RDS"))
+saveRDS(insulindrip_longitudinal,paste0(path_metacabg_paper,"/working/data/insulindrip_longitudinal.RDS"))
 
-
+write_csv(bg_longitudinal,paste0(path_metacabg_paper,"/working/data/bg_longitudinal.csv"))
+write_csv(insulinbolus_longitudinal,paste0(path_metacabg_paper,"/working/data/insulinbolus_longitudinal.csv"))
+write_csv(insulindrip_longitudinal,paste0(path_metacabg_paper,"/working/data/insulindrip_longitudinal.csv"))

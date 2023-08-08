@@ -6,8 +6,8 @@ inputdirectory = paste0(path_sh_folder,"/raw/CGM/")
 files = list.files(inputdirectory)
 files = files[regexpr("\\.csv",files)>0]
 
-corrected_key_dates <- read_csv(paste0(path_metacabg_paper,"/working/corrected key observation dates.csv"))
-cgm_insertion_dates <- read_csv(paste0(path_metacabg_paper,"/working/cgm insertion dates.csv"))
+corrected_key_dates <- read_csv(paste0(path_metacabg_paper,"/working/data/corrected key observation dates.csv"))
+cgm_insertion_dates <- read_csv(paste0(path_metacabg_paper,"/working/data/cgm insertion dates.csv"))
 
 metacabg_cgm <- readxl::read_excel("data/CABG Hyperglycemia Variable List.xlsx",sheet="METACABG CGM")
 
@@ -53,6 +53,6 @@ cgm_long = map_dfr(files,
 
 
 
-saveRDS(cgm_long,paste0(path_metacabg_paper,"/working/cgm harmonization.RDS"))
-write_csv(cgm_long,paste0(path_metacabg_paper,"/working/cgm harmonization.csv"))
+saveRDS(cgm_long,paste0(path_metacabg_paper,"/working/data/cgm harmonization.RDS"))
+write_csv(cgm_long,paste0(path_metacabg_paper,"/working/data/cgm harmonization.csv"))
 # cgm_long <- readRDS(paste0(path_metacabg_paper,"/working/cgm harmonization.RDS"))

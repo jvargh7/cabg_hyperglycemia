@@ -2,7 +2,7 @@ rm(list=ls());gc();source(".Rprofile")
 
 # From chpre03_cgm harmonization.R -
 cgm_long <- readRDS(paste0(path_metacabg_paper,"/working/cgm harmonization.RDS"))
-bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/bg_longitudinal.RDS"))
+bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/glucose_longitudinal.RDS"))
 insulinbolus_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/insulinbolus_longitudinal.RDS"))
 insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/insulindrip_longitudinal.RDS"))
 

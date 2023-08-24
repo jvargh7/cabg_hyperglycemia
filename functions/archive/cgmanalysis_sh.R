@@ -1,15 +1,13 @@
 source(paste0(path_cgm_repo,"/package/cgm_format.R"))
 
 ## Derived from cgmanalysis:: cgmvariables function
-cgmanalysis_sh <- function (inputdirectory, outputdirectory = tempdir(), 
-                                      outputname = "REDCap Upload", log_file,
-                                      aboveexcursionlength = 35, belowexcursionlength = 10, magedef = "1sd", 
-                                      congan = 1, 
-                                      daystart = 6, dayend = 12, 
-                                      evestart = 12, eveend = 18, 
-                                      nightstart = 18, nightend = 23, 
-                                      format = "rows", printname = T) 
-{
+cgmanalysis_sh <- function (df,
+                            aboveexcursionlength = 35, belowexcursionlength = 10, magedef = "1sd", 
+                            congan = 1, 
+                            daystart = 6, dayend = 12, 
+                            evestart = 12, eveend = 18, 
+                            nightstart = 18, nightend = 23, 
+                            format = "rows", printname = T) {
   cat("\n","Reading Files:",file=log_file,append=TRUE)
   
   #Full names set to FALSE

@@ -34,7 +34,8 @@ post2_vars <- metacabg %>%
 
 surgery <- metacabg %>% 
   dplyr::filter(event_name == "surgery") %>% 
-  dplyr::select(one_of(surgery_vars))
+  dplyr::select(record_id,event_name,contains("surgery")) %>% 
+  dplyr::select(-date_surgery_or_drips,-devices_changed_reason_surgery)
 
 post1 <- metacabg %>% 
   dplyr::filter(event_name == "post1") %>% 
@@ -48,5 +49,5 @@ saveRDS(surgery,paste0(path_metacabg_paper,"/working/data/surgery_cs.RDS"))
 write_csv(surgery,paste0(path_metacabg_paper,"/working/data/surgery_cs.csv"))
 
 
-saveRDS(screening,paste0(path_metacabg_paper,"/working/data/screening.RDS"))
-write_csv(screening,paste0(path_metacabg_paper,"/working/data/screening.csv"))
+saveRDS(screening,paste0(path_metacabg_paper,"/working/data/screening_cs.RDS"))
+write_csv(screening,paste0(path_metacabg_paper,"/working/data/screening_cs.csv"))

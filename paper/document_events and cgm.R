@@ -1,13 +1,13 @@
 rm(list=ls());gc();source(".Rprofile")
 
 # From chpre03_cgm harmonization.R -
-cgm_long <- readRDS(paste0(path_metacabg_paper,"/working/cgm harmonization.RDS"))
-bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/glucose_longitudinal.RDS"))
-insulinbolus_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/insulinbolus_longitudinal.RDS"))
-insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/insulindrip_longitudinal.RDS"))
+cgm_long <- readRDS(paste0(path_metacabg_paper,"/working/data/cgm harmonization.RDS"))
+bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/data/glucose_longitudinal.RDS"))
+insulinbolus_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/data/insulinbolus_longitudinal.RDS"))
+insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/data/insulindrip_longitudinal.RDS"))
 
-corrected_key_dates <- read_csv(paste0(path_metacabg_paper,"/working/corrected key observation dates.csv"))
-surgery_cs <- readRDS(paste0(path_metacabg_paper,"/working/surgery_cs.RDS")) %>% 
+corrected_key_dates <- read_csv(paste0(path_metacabg_paper,"/working/data/corrected key observation dates.csv"))
+surgery_cs <- readRDS(paste0(path_metacabg_paper,"/working/data/surgery_cs.RDS")) %>% 
   dplyr::select(record_id,surgery_start_time,surgery_end_time)
 
 # unique_records <- surgery_cs$record_id # Do this for all records

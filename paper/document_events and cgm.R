@@ -2,9 +2,14 @@ rm(list=ls());gc();source(".Rprofile")
 
 # From chpre03_cgm harmonization.R -
 cgm_long <- readRDS(paste0(path_metacabg_paper,"/working/data/cgm harmonization.RDS"))
-bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/data/glucose_longitudinal.RDS"))
+bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/data/bg_longitudinal.RDS"))
 insulinbolus_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/data/insulinbolus_longitudinal.RDS"))
 insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/data/insulindrip_longitudinal.RDS"))
+cleaned_blood_draws_timestamps <- readRDS(paste0(path_metacabg_paper,"/working/data/blood draws timestamps.RDS")) %>% 
+  dplyr::select(record_id,contains("imputed")) %>% 
+  pivot_longer(cols=-record_id,names_to="visit",values_to="timestamp") %>% 
+  mutate(visit = str_replace_all(visit,"(visit|_imputed)","") %>% as.numeric()) %>% 
+  dplyr::filter(!is.na(timestamp))
 
 corrected_key_dates <- read_csv(paste0(path_metacabg_paper,"/working/data/corrected key observation dates.csv"))
 surgery_cs <- readRDS(paste0(path_metacabg_paper,"/working/data/surgery_cs.RDS")) %>% 
@@ -30,7 +35,11 @@ for (u_r in unique_records){
     dplyr::filter(!is.na(surgery_start_time)) %>% 
     dplyr::filter(record_id == u_r)
   
-
+  blood_draws_df = cleaned_blood_draws_timestamps %>% 
+    dplyr::filter(record_id == u_r) %>% 
+    mutate(y = 260)
+  
+  
   insulinbolus_df = insulinbolus_longitudinal %>% 
     mutate(type = "Insulin Bolus",
            item = "Insulin") %>% 
@@ -59,12 +68,13 @@ for (u_r in unique_records){
   
   p = p + geom_point(data = poct_df,
                      aes(x=timestamp,y=value,color=item,shape=type)) +
+    geom_text(data=blood_draws_df,aes(x=timestamp,y=y,label= visit),col="orange") +
     ylab("") +
     xlab("Timestamp") +
     ggtitle(paste0("Patient: ",u_r))  +
     scale_shape_manual(name = "",values=c("POCT Glucose" = 1,"Insulin Drip" = 2, "Insulin Bolus" = 3)) +
     theme_bw()  +
-    theme(legend.position = "bottom")
+    theme(legend.position = "bottom") 
   
   color_values = c("red","blue")
   names(color_values) = c("Glucose","Insulin")
@@ -80,7 +90,9 @@ for (u_r in unique_records){
     # color_values = c("Glucose","Insulin",names_cgms)
     # names(color_values) = c("red","blue",rainbow(n_cgms))
     
-    timestamp_ranges = c(min(c(poct_df$timestamp,cgm_df$timestamp)), max(c(poct_df$timestamp,cgm_df$timestamp)))
+    timestamp_ranges = c(min(c(blood_draws_df$timestamp,poct_df$timestamp,cgm_df$timestamp)), 
+                         max(c(blood_draws_df[blood_draws_df$visit==4,]$timestamp,
+                               poct_df$timestamp,cgm_df$timestamp)))
 
     p = p + 
       # geom_path(data=cgm_df,aes(group=cgm_id,col=cgm_id,x=timestamp,y=sensorglucose)) 

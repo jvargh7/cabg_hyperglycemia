@@ -55,4 +55,4 @@ cgm_long = map_dfr(files,
 
 saveRDS(cgm_long,paste0(path_metacabg_paper,"/working/data/cgm harmonization.RDS"))
 write_csv(cgm_long,paste0(path_metacabg_paper,"/working/data/cgm harmonization.csv"))
-# cgm_long <- readRDS(paste0(path_metacabg_paper,"/working/cgm harmonization.RDS"))
+# cgm_long <- readRDS(paste0(path_metacabg_paper,"/working/data/cgm harmonization.RDS"))

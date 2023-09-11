@@ -1,11 +1,18 @@
 rm(list=ls());gc();source(".Rprofile")
 
-metacabg <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS"))
+metacabg <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS"))
 
 screening <- metacabg %>% 
   dplyr::filter(event_name == "screening") %>% 
-  dplyr::select(record_id,event_name,age_at_time_of_consent,sex,race,other_race,bmi_calculated,
-                type_of_participation)
+  dplyr::select(record_id,event_name,age_at_time_of_consent,sex,race,other_race,weight_kg, height_cm, bmi_calculated,
+                type_of_participation, education, length_stay_prior_enrollment,total_length_stay_post_cabg,total_length_stay_post_admission,
+                hypertension, hyperlipidemia, infectiousdisease, pulmonary, renaldisease,
+                medication_acearb, medication_asaplavix, medication_betablocker,
+                medication_statins, alcohol_any, alcohol_ndrinksperday,
+                drugs_any, smoked_ever, hba1c, lipidpanel_last6mo,
+                totalchol, tgl, hdl, ldl)
+saveRDS(screening,paste0(path_metacabg_paper,"/working/data/screening_cs.RDS"))
+write_csv(screening,paste0(path_metacabg_paper,"/working/data/screening_cs.csv"))
 
 
 surgery_vars <- metacabg %>% 
@@ -49,5 +56,3 @@ saveRDS(surgery,paste0(path_metacabg_paper,"/working/data/surgery_cs.RDS"))
 write_csv(surgery,paste0(path_metacabg_paper,"/working/data/surgery_cs.csv"))
 
 
-saveRDS(screening,paste0(path_metacabg_paper,"/working/data/screening_cs.RDS"))
-write_csv(screening,paste0(path_metacabg_paper,"/working/data/screening_cs.csv"))

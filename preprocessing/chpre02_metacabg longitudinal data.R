@@ -1,5 +1,8 @@
 corrected_key_dates <- read_csv(paste0(path_metacabg_paper,"/working/data/corrected key observation dates.csv"))
 
+bg_longitudinal_saved <- readRDS(paste0(path_metacabg_paper,"/working/data/bg_longitudinal.RDS"))
+insulinbolus_longitudinal_saved <- readRDS(paste0(path_metacabg_paper,"/working/data/insulinbolus_longitudinal.RDS"))
+insulindrip_longitudinal_saved <- readRDS(paste0(path_metacabg_paper,"/working/data/insulindrip_longitudinal.RDS"))
 
 
 add_key_dates <- function(df){
@@ -24,7 +27,7 @@ add_key_dates <- function(df){
 
 
 
-bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS")) %>% 
+bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS")) %>% 
   dplyr::select(record_id,event_name,
                 matches("(or_bg|cgmbg_bg|meal_bg)")) %>% 
   dplyr::select(-matches("(gt|lt|ge|le)")) %>% 
@@ -76,7 +79,20 @@ bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_202
   add_key_dates(.) %>% 
   mutate(timestamp = lubridate::as_datetime(paste0(date_measurement," ",time)))
 
-insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS")) %>% 
+
+
+if(nrow(bg_longitudinal)>nrow(bg_longitudinal_saved)){
+  
+  
+  (missing_timestamps <- anti_join(bg_longitudinal,bg_longitudinal_saved,by=c("record_id","event_name","domain","index")) %>% 
+    dplyr::filter(!is.na(value),is.na(time)) %>% 
+    dplyr::select(record_id,event_name,domain,index,time,value) ) %>% 
+  writexl::write_xlsx(.,paste0(path_sh_folder,"/working/chpre02_QC Missing Times for POCT values_",Sys.Date(),".xlsx"))
+  
+}
+
+
+insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS")) %>% 
   dplyr::select(record_id,event_name,
                 matches("(or_idr|icu48_idr)")) %>% 
   dplyr::select(-matches("(gt|lt|ge|le)")) %>% 
@@ -96,7 +112,17 @@ insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/met
   mutate(timestamp_start = lubridate::as_datetime(paste0(date_measurement," ",time_start)),
          timestamp_stop = lubridate::as_datetime(paste0(date_stop," ",time_stop)))
 
-insulinbolus_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS")) %>% 
+if(nrow(insulindrip_longitudinal)>nrow(insulindrip_longitudinal_saved)){
+  
+  
+  (missing_timestamps <- anti_join(insulindrip_longitudinal,insulindrip_longitudinal_saved,by=c("record_id","event_name","domain","index")) %>% 
+     dplyr::filter(!is.na(rate_value),is.na(time_start)|is.na(time_stop)) %>% 
+     dplyr::select(record_id,event_name,domain,index,time_start,time_stop,rate_value) ) %>% 
+    writexl::write_xlsx(.,paste0(path_sh_folder,"/working/chpre02_QC Missing Times for Insulin Drip values_",Sys.Date(),".xlsx"))
+  
+}
+
+insulinbolus_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS")) %>% 
   dplyr::select(record_id,event_name,
                 matches("(or_ibolus|icu48_isq)")) %>% 
   dplyr::select(-matches("(gt|lt|ge|le)")) %>% 
@@ -110,11 +136,48 @@ insulinbolus_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/me
   add_key_dates(.) %>% 
   mutate(timestamp = lubridate::as_datetime(paste0(date_measurement," ",time)))
 
+if(nrow(insulinbolus_longitudinal)>nrow(insulinbolus_longitudinal_saved)){
+  
+  
+  (missing_timestamps <- anti_join(insulinbolus_longitudinal,insulinbolus_longitudinal_saved,by=c("record_id","event_name","domain","index")) %>% 
+     dplyr::filter(!is.na(rate_value),is.na(time)) %>% 
+     dplyr::select(record_id,event_name,domain,index,time,value) ) %>% 
+    writexl::write_xlsx(.,paste0(path_sh_folder,"/working/chpre02_QC Missing Times for Insulin Bolus values_",Sys.Date(),".xlsx"))
+  
+}
+
+
+labtests_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS")) %>% 
+  dplyr::select(record_id,event_name, 
+                creatinine, egfr, albumin,
+                total_bilirubin, alt,
+                alkaline_phosphatase, ast, wbc) %>% 
+  left_join(corrected_key_dates,
+            by=c("record_id","event_name")) %>% 
+  left_join(corrected_key_dates %>% 
+              dplyr::filter(event_name == "post1") %>% 
+              dplyr::select(record_id,date_event_name) %>% 
+              dplyr::rename(post1_date = date_event_name),
+            by = "record_id") %>% 
+  group_by(record_id) %>% 
+  mutate(date_event_name = case_when(str_detect(event_name,"post") & is.na(date_event_name) ~ (post1_date + days(as.numeric(str_replace(event_name,"post","")))),
+                                     TRUE ~ date_event_name)) %>% 
+  ungroup() %>% 
+  dplyr::select(-post1_date)
+
+
+
 
 saveRDS(bg_longitudinal,paste0(path_metacabg_paper,"/working/data/bg_longitudinal.RDS"))
 saveRDS(insulinbolus_longitudinal,paste0(path_metacabg_paper,"/working/data/insulinbolus_longitudinal.RDS"))
 saveRDS(insulindrip_longitudinal,paste0(path_metacabg_paper,"/working/data/insulindrip_longitudinal.RDS"))
+saveRDS(labtests_longitudinal,paste0(path_metacabg_paper,"/working/data/labtests_longitudinal.RDS"))
 
 write_csv(bg_longitudinal,paste0(path_metacabg_paper,"/working/data/bg_longitudinal.csv"))
 write_csv(insulinbolus_longitudinal,paste0(path_metacabg_paper,"/working/data/insulinbolus_longitudinal.csv"))
 write_csv(insulindrip_longitudinal,paste0(path_metacabg_paper,"/working/data/insulindrip_longitudinal.csv"))
+write_csv(labtests_longitudinal,paste0(path_metacabg_paper,"/working/data/labtests_longitudinal.csv"))
+
+
+
+

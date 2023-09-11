@@ -1,5 +1,6 @@
+rm(list=ls());gc();source(".Rprofile")
 
-key_dates <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS")) %>% 
+key_dates <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS")) %>% 
   dplyr::select(record_id,event_name,
                 surgery_date,date_of_cabg_bg_monitoring,
                 date_surgery_or_drips,
@@ -38,6 +39,9 @@ corrected_key_dates <- key_dates %>%
     record_id == "MCM008" & event_name == "post1" & date_type == "cgmbg_comparison_date" ~ ymd("2019-08-16"),
     record_id == "MCM008" & event_name == "post1" & date_type == "icu48_date_monitoring" ~ ymd("2019-08-16"),
     
+    # Incorrectly entered as "2020-08-04" since date of surgery was "2020-08-04"
+    record_id == "MCE010" & event_name == "post1" & date_type == "icu48_date_monitoring" ~ ymd("2020-08-05"),
+    
     # Incorrectly entered as "2019-08-16" --> FZT verified on 2023-07-26
     record_id == "MCM008" & event_name == "post2" & date_type == "cgmbg_comparison_date" ~ ymd("2019-08-17"),
     
@@ -45,7 +49,7 @@ corrected_key_dates <- key_dates %>%
     record_id == "MCM012" & event_name == "post2" & date_type == "cgmbg_comparison_date" ~ ymd("2019-10-30"),
     
     # Incorrectly entered as "2020-01-29" --> FZT verified on 2023-07-26
-    record_id == "MCM018" & event_name == "post1" & date_type == "icu48_date_monitoring" ~ ymd("2020-01-30"),
+    record_id == "MCM018" & event_name == "post1" & date_type == "icu48_date_monitoring" ~ ymd("2020-01-31"),
     
     # Incorrectly entered as 2030-03-14 --> FZT verified on 2023-07-26
     record_id == "MCM026" & event_name == "post1" & date_type == "cgmbg_comparison_date" ~ ymd("2020-03-14"),
@@ -75,7 +79,7 @@ post_qc_dates <- corrected_key_dates %>%
 write_csv(corrected_key_dates,paste0(path_metacabg_paper,"/working/data/corrected key observation dates.csv"))
 
 
-cgm_dates <- readRDS(paste0(path_metacabg_paper,"/working/raw/metacabg_20230706.RDS")) %>% 
+cgm_dates <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS")) %>% 
   dplyr::filter(event_name == "screening") %>% 
   dplyr::select(record_id,blinded_group,type_of_participation,
                 cgm1_insertion_date_time,

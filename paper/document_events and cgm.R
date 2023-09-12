@@ -20,6 +20,8 @@ unique_records <- unique(cgm_long$record_id)
 
 # MCM013: LGA 8/2/2023 added; MCM013 - sensor did not passed from the warming up period. 
 unique_records <- unique_records[!unique_records %in% c("MCM013")]
+unique_records <- unique_records[!unique_records %in% c("MCM011")]
+unique_records <- unique_records[!unique_records %in% c("MCM043")]
 
 pdf(paste0(path_metacabg_paper,"/figures/events and cgm_",Sys.Date(),".pdf"),width=12,height=8)
 

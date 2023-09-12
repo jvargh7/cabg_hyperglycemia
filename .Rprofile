@@ -13,3 +13,8 @@ tir_low = 70
 tir_high = 140
 
 low_glucose_cutoff = 40
+
+excluded_cgm_record_ids = c("MCM013","MCM011","MCM043")
+excluded_metabocabg_record_ids = c("MCG002","MCM020","MCM025","MCM043","MCM053","MCM057","MCM058")
+# Screen fail: MCG002, MCM020, MCM043, MCM053, MCM057, MCM058
+# Withdrew consent: MCM025

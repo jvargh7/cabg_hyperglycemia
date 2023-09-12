@@ -19,6 +19,16 @@ bg_outcome_period <- bg_longitudinal %>%
 
 unique(bg_outcome_period$record_id) %>% length()
 
+
+missing_bg_outcome_period_ids = surgery_timestamps$record_id[!surgery_timestamps$record_id %in% bg_outcome_period$record_id]
+bg_longitudinal %>% 
+  dplyr::filter(record_id %in% missing_bg_outcome_period_ids) %>% 
+  group_by(record_id) %>% 
+  tally()
+
+
+# FJP (8 Sep):	stress hyperglycemia maybe – we should use:  >140 x2  AND/OR >180 x1 
+
 sh_outcome_period <- bg_outcome_period %>% 
   group_by(record_id) %>% 
   summarize(mean_bg = mean(value),
@@ -42,30 +52,31 @@ write_csv(sh_outcome_period,paste0(path_metacabg_paper,"/working/data/stress hyp
 
 # Atrial Fibrilliation: Anytime after surgery but before discharge -----------
 afib <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS")) %>% 
-  dplyr::select(record_id, cardiac_any, cardiac_cadnew, cardiac_cadprevious,
-                cardiac_afib, cardiac_otherarrhythmia, cardiac_cardiomyopathy,
-                cardiac_chf, cardiac_valvulopathy, cardiac_previousmi) %>% 
+  dplyr::select(record_id, cardiac_any, cardiac_mi, contains("arrhythmia")) %>% 
   mutate(across(contains("cardiac"),~case_when(. %in% c("Yes","Checked") ~ 1,
                                                . %in% c("No","Unchecked") ~ 0,
                                                TRUE ~ NA_real_))) %>% 
-  dplyr::filter(!is.na(cardiac_any))
+  dplyr::filter(!is.na(cardiac_any)) %>% 
+  mutate(cardiac_arrhythmia_afib = case_when(cardiac_any == 0 ~ 0,
+                                             TRUE ~ cardiac_arrhythmia_afib))
 
-table(afib$cardiac_afib)
+table(afib$cardiac_arrhythmia_afib)
 
-summary(afib)
 saveRDS(afib,paste0(path_metacabg_paper,"/working/data/afib.RDS"))
 write_csv(afib,paste0(path_metacabg_paper,"/working/data/afib.csv"))
 
 # Acute Kidney Injury -------------
 
-aki <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS")) %>% 
-  dplyr::select(record_id, event_name, date_lab_tests, creatinine) %>% 
+aki <- readRDS(paste0(path_metacabg_paper,"/working/data/labtests_longitudinal.RDS")) %>% 
+  dplyr::select(record_id, event_name, date_event_name, creatinine) %>% 
   dplyr::filter(!is.na(creatinine)) %>% 
   mutate(event_name = factor(event_name,levels=c("screening","surgery",paste0("post",1:19)))) %>% 
   group_by(record_id) %>% 
-  mutate(baseline_creatinine = case_when(event_name == "screening" ~ creatinine,
+  mutate(baseline_creatinine = case_when(event_name == "surgery" & !is.na(creatinine) ~ creatinine,
+                                         event_name == "screening" & !is.na(creatinine) ~ creatinine,
                                          TRUE ~ NA_real_)) %>% 
   mutate(baseline_creatinine = zoo::na.locf(baseline_creatinine)) %>% 
+  dplyr::filter(event_name != "screening") %>%
   mutate(absolute_change_from_baseline = creatinine - baseline_creatinine,
          relative_change_from_baseline = creatinine/baseline_creatinine) %>% 
   mutate(aki_status = case_when(absolute_change_from_baseline >= 0.3 ~ 1,
@@ -73,6 +84,10 @@ aki <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS"
                          TRUE ~ 0)) %>% 
   ungroup()
 
+
+
+saveRDS(aki,paste0(path_metacabg_paper,"/working/data/aki.RDS"))
+write_csv(aki,paste0(path_metacabg_paper,"/working/data/aki.csv"))
 
 
 (fig_aki = aki %>% 
@@ -92,4 +107,5 @@ unique_aki <- aki %>%
   group_by(record_id) %>% 
   summarize(aki_status = max(aki_status)) %>% 
   ungroup()
+
 table(unique_aki$aki_status)

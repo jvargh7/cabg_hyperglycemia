@@ -5,7 +5,7 @@ metacabg <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831
 screening <- metacabg %>% 
   dplyr::filter(event_name == "screening") %>% 
   dplyr::select(record_id,event_name,age_at_time_of_consent,sex,race,other_race,weight_kg, height_cm, bmi_calculated,
-                type_of_participation, education, length_stay_prior_enrollment,total_length_stay_post_cabg,total_length_stay_post_admission,
+                type_of_participation, blinded_group, education, length_stay_prior_enrollment,total_length_stay_post_cabg,total_length_stay_post_admission,
                 hypertension, hyperlipidemia, infectiousdisease, pulmonary, renaldisease,
                 medication_acearb, medication_asaplavix, medication_betablocker,
                 medication_statins, alcohol_any, alcohol_ndrinksperday,

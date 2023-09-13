@@ -6,13 +6,20 @@ rm(post1,post2,screening,metacabg,surgery)
 surgery_timestamps <- readRDS(paste0(path_metacabg_paper,"/working/data/surgery_cs.RDS")) %>% 
   dplyr::select(record_id,surgery_start_time,surgery_end_time)
 
-blood_draws_timestamps <- readxl::read_excel(paste0(path_sh_folder,"/raw/METABO CABG - Visits dates and times_JV_LGA.xlsx")) %>% 
+blood_draws_timestamps <- readxl::read_excel(paste0(path_sh_folder,"/raw/METABO CABG - Visits dates and times_JV_LGA_FZT.xlsx")) %>% 
   rename(record_id = 'Participant ID',
          visit1 = 'Visit 1',
          visit2 = 'Visit 2',
          visit3 = 'Visit 3',
          visit4 = 'Visit 4',
          visit5 = 'Visit 5') %>% 
+  mutate(visit3 = case_when(record_id == "MCE001" ~ ymd_hms("2019-05-01 10:30:00"),
+                            TRUE ~ visit3),
+         
+         visit4 = case_when(record_id == "MCM004" ~ ymd_hms("2019-07-03 13:15:00"),
+                            TRUE ~ visit4)) %>% 
+  
+  
   mutate(across(starts_with("visit"), .f = function(x) case_when(is.na(x) ~ "Missing",
                                                                  hour(x) == 0 & minute(x) == 0 ~ "Invalid",
                                                                  TRUE ~ "Valid"),
@@ -38,6 +45,7 @@ blood_draws_timestamps <- readxl::read_excel(paste0(path_sh_folder,"/raw/METABO 
                                  TRUE ~ "Looks good"),
          
          flags_v3 = case_when(diff_v3msurgeryend > 48*60 ~ "More than 48 hours",
+                              diff_v3msurgeryend < 0 ~ "Before surgery",
                               diff_v3msurgeryend <24*60 ~ "Less than 24 hours",
                                  is.na(diff_v3msurgeryend) ~ "Missing data",
                                  TRUE ~ "Looks good"),

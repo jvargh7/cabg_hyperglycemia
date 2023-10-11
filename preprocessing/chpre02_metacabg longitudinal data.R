@@ -1,3 +1,5 @@
+rm(list=ls());gc();source(".Rprofile")
+
 corrected_key_dates <- read_csv(paste0(path_metacabg_paper,"/working/data/corrected key observation dates.csv"))
 
 bg_longitudinal_saved <- readRDS(paste0(path_metacabg_paper,"/working/data/bg_longitudinal.RDS"))
@@ -26,7 +28,7 @@ add_key_dates <- function(df){
 
 
 
-
+# BG Longitudinal ---------------
 bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS")) %>% 
   dplyr::select(record_id,event_name,
                 matches("(or_bg|cgmbg_bg|meal_bg)")) %>% 
@@ -91,6 +93,23 @@ if(nrow(bg_longitudinal)>nrow(bg_longitudinal_saved)){
   
 }
 
+# BG Admission and Pre-OP data integrated with bg_longitudinal -------
+bg_admission_preop <- readxl::read_excel(paste0(path_sh_folder,"/raw/Blood glucose at admission and pre op LGA.xlsx")) %>% 
+  dplyr::rename(admission_bg = bg_admission,
+                admission_timestamp = bg_admission_timestamp,
+                preop_bg = bg_pre_op,
+                preop_timestamp = bg_pre_op_timestamp) %>% 
+  pivot_longer(cols=-record_id,names_sep = "_",names_to=c("event_name",".value"),values_to=c("bg","timestamp")) %>% 
+  dplyr::filter(!is.na(bg)) %>%
+  rename(value = bg) %>% 
+  mutate(index = "1",
+         domain = event_name,
+         time = as_hms(paste0(sprintf("%02d",hour(timestamp)),":",sprintf("%02d",minute(timestamp)),":00")),
+         date_measurement = date(timestamp))
+
+bg_longitudinal <- bind_rows(bg_longitudinal,
+                             bg_admission_preop) %>% 
+  arrange(record_id,timestamp)
 
 insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS")) %>% 
   dplyr::select(record_id,event_name,
@@ -110,7 +129,10 @@ insulindrip_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/raw/met
   mutate(date_stop = case_when(time_start > time_stop ~ date_measurement + days(1),
                                 TRUE ~ date_measurement)) %>% 
   mutate(timestamp_start = lubridate::as_datetime(paste0(date_measurement," ",time_start)),
-         timestamp_stop = lubridate::as_datetime(paste0(date_stop," ",time_stop)))
+         timestamp_stop = lubridate::as_datetime(paste0(date_stop," ",time_stop))) %>% 
+  mutate(time_total_corrected = as.numeric(difftime(timestamp_stop,timestamp_start,units = "secs"))/3600) %>% 
+  # FJP (12-Oct): Removing 2 rows of MCM019 where rate and time is zero
+  dplyr::filter(!(record_id == "MCM019" & time_total == 0 & rate_value == 0))
 
 if(nrow(insulindrip_longitudinal)>nrow(insulindrip_longitudinal_saved)){
   

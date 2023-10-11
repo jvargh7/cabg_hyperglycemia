@@ -8,3 +8,6 @@ bg_presurgery <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_202
 
 
 writexl::write_xlsx(bg_presurgery,paste0(path_sh_folder,"/working/chd06_TEMPLATE Blood Glucose at Admission and Preop.xlsx"))
+
+
+# bg_admission_preop <- readxl::read_excel(paste0(path_sh_folder,"/raw/Blood glucose at admission and pre op LGA.xlsx"))

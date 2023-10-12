@@ -58,7 +58,8 @@ afib <- readRDS(paste0(path_metacabg_paper,"/working/raw/metabocabg_20230831.RDS
                                                TRUE ~ NA_real_))) %>% 
   dplyr::filter(!is.na(cardiac_any)) %>% 
   mutate(cardiac_arrhythmia_afib = case_when(cardiac_any == 0 ~ 0,
-                                             TRUE ~ cardiac_arrhythmia_afib))
+                                             TRUE ~ cardiac_arrhythmia_afib)) %>% 
+  dplyr::select(-contains("history"))
 
 table(afib$cardiac_arrhythmia_afib)
 

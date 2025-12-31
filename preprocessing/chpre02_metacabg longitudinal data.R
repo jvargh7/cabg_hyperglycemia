@@ -201,5 +201,7 @@ write_csv(insulindrip_longitudinal,paste0(path_metacabg_paper,"/working/data/ins
 write_csv(labtests_longitudinal,paste0(path_metacabg_paper,"/working/data/labtests_longitudinal.csv"))
 
 
+bg_longitudinal <- readRDS(paste0(path_metacabg_paper,"/working/data/bg_longitudinal.RDS"))
+bg_longitudinal <- read_csv(paste0(path_metacabg_paper,"/working/data/bg_longitudinal.csv"))
 
 

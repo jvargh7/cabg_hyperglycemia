@@ -3,7 +3,13 @@ rm(list=ls());gc();source(".Rprofile")
 
 c18_feature_2 <- read_table(paste0(path_metabolomics_folder,"/c18/feature_2.txt")) %>% 
   pivot_longer(cols=-one_of("mz","time"),names_to=c("record_id","visit"),names_sep = "_",values_to="value") %>% 
-  pivot_wider(names_from="visit",values_from="value") %>% 
+  mutate(corrected_visit = case_when(record_id == "MCE010" & visit == "V2" ~ "V1",
+                                     record_id == "MCE010" & visit == "V4" ~ "V2",
+                                     record_id == "MCE010" & visit == "V5" ~ "V3",
+                                     TRUE ~ visit
+                                     )) %>% 
+  dplyr::select(-visit) %>% 
+  pivot_wider(names_from="corrected_visit",values_from="value") %>% 
   mutate(record_id = str_replace(record_id,"MCE011","MCG001"))  %>% 
   dplyr::select(record_id,everything())
 
@@ -11,7 +17,13 @@ c18_feature_2 <- read_table(paste0(path_metabolomics_folder,"/c18/feature_2.txt"
 
 hilic_feature_2 <- read_table(paste0(path_metabolomics_folder,"/hil/feature_2.txt")) %>% 
   pivot_longer(cols=-one_of("mz","time"),names_to=c("record_id","visit"),names_sep = "_",values_to="value") %>% 
-  pivot_wider(names_from="visit",values_from="value") %>% 
+  mutate(corrected_visit = case_when(record_id == "MCE010" & visit == "V2" ~ "V1",
+                                     record_id == "MCE010" & visit == "V4" ~ "V2",
+                                     record_id == "MCE010" & visit == "V5" ~ "V3",
+                                     TRUE ~ visit
+  )) %>% 
+  dplyr::select(-visit) %>% 
+  pivot_wider(names_from="corrected_visit",values_from="value") %>% 
   mutate(record_id = str_replace(record_id,"MCE011","MCG001")) %>% 
   dplyr::select(record_id,everything())
 

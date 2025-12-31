@@ -6,7 +6,7 @@ rm(post1,post2,screening,metacabg,surgery)
 surgery_timestamps <- readRDS(paste0(path_metacabg_paper,"/working/data/surgery_cs.RDS")) %>% 
   dplyr::select(record_id,surgery_start_time,surgery_end_time)
 
-blood_draws_timestamps <- readxl::read_excel(paste0(path_sh_folder,"/raw/METABO CABG - Visits dates and times_JV_LGA_FZT.xlsx")) %>% 
+blood_draws_timestamps <- readxl::read_excel(paste0(path_sh_folder,"/raw/METABO CABG - Visits dates and times_LGA_30NOV2023.xlsx")) %>% 
   rename(record_id = 'Participant ID',
          visit1 = 'Visit 1',
          visit2 = 'Visit 2',
